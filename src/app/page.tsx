@@ -1,91 +1,73 @@
-"use client";
+import Link from 'next/link';
+import { AdvocateCard } from './AdvocateCard';
+import { DEFAULT_LIMIT, DEFAULT_PAGE } from './constants';
+import PageLimitSelect from './PageLimitSelect';
+import SearchForm from './SearchForm';
+import { advocateService } from './services/advocateService';
+import { Advocate } from './types/advocate';
 
-import { useEffect, useState } from "react";
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const page = parseInt(searchParams.page as string) || DEFAULT_PAGE;
+  const limit = parseInt(searchParams.limit as string) || DEFAULT_LIMIT;
+  const search = (searchParams.search as string) || '';
 
-export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
-
-  useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
-    });
-  }, []);
-
-  const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
-  };
-
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
+  const { data, rows } = await advocateService.getAdvocates({
+    page,
+    limit,
+    search,
+  });
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
-      </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>City</th>
-          <th>Degree</th>
-          <th>Specialties</th>
-          <th>Years of Experience</th>
-          <th>Phone Number</th>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <main className='w-full'>
+      <header>
+        <h2 className='h-12 bg-primary font-extrabold text-white flex justify-center items-center'>
+          Solace Advocate Finder
+        </h2>
+      </header>
+      <SearchForm />
+      <section aria-label='Advocates List'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-slate-50'>
+          {data.map((advocate: Advocate) => (
+            <AdvocateCard key={advocate.id} advocate={advocate} />
+          ))}
+        </div>
+      </section>
+      <footer className='py-6 px-4'>
+        <div className='flex flex-col items-center'>
+          <div className='flex space-x-2 items-center mb-6 w-[15.25rem]'>
+            {page > 1 && (
+              <Link
+                href={`?page=${page - 1}&limit=${limit}${
+                  search ? `&search=${search}` : ''
+                }`}
+                className='px-4 py-2 bg-primary text-white rounded-md hover:bg-buttonHover'
+              >
+                Prev
+              </Link>
+            )}
+
+            <span className='px-6 py-2 text-gray-700 text-center flex-grow whitespace-nowrap'>
+              Page {page}
+            </span>
+
+            {page * limit < rows && (
+              <Link
+                href={`?page=${page + 1}&limit=${limit}${
+                  search ? `&search=${search}` : ''
+                }`}
+                className='px-4 py-2 bg-primary text-white rounded-md hover:bg-buttonHover'
+              >
+                Next
+              </Link>
+            )}
+          </div>
+          <PageLimitSelect />
+        </div>
+      </footer>
     </main>
   );
 }
