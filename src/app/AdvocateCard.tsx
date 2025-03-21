@@ -29,7 +29,7 @@ export const AdvocateCard = ({ advocate }: IAdvocateCardProps) => (
       <div className='flex flex-wrap gap-1'>
         {advocate.specialties.map((specialty, index) => (
           <span
-            key={index}
+            key={`specialty-${index}`}
             className='bg-secondary text-primary text-xs px-2 py-1 rounded-full text-center'
           >
             {specialty}

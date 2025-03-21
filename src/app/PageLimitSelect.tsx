@@ -13,13 +13,9 @@ const PageLimitSelect = () => {
     const newLimit = e.target.value;
     const params = new URLSearchParams(searchParams.toString());
 
-    // Update limit parameter
     params.set('limit', newLimit);
-
-    // Reset to page 1 when changing limit
     params.set('page', '1');
 
-    // Navigate to new URL with updated parameters
     router.push(`?${params.toString()}`);
   };
 

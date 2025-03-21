@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { AdvocateCard } from './AdvocateCard';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from './constants';
 import PageLimitSelect from './PageLimitSelect';
@@ -39,14 +40,14 @@ export default async function Home({
         <div className='flex flex-col items-center'>
           <div className='flex space-x-2 items-center mb-6 w-[15.25rem]'>
             {page > 1 && (
-              <a
+              <Link
                 href={`?page=${page - 1}&limit=${limit}${
                   search ? `&search=${search}` : ''
                 }`}
                 className='px-4 py-2 bg-primary text-white rounded-md hover:bg-buttonHover'
               >
                 Prev
-              </a>
+              </Link>
             )}
 
             <span className='px-6 py-2 text-gray-700 text-center flex-grow whitespace-nowrap'>
@@ -54,14 +55,14 @@ export default async function Home({
             </span>
 
             {page * limit < rows && (
-              <a
+              <Link
                 href={`?page=${page + 1}&limit=${limit}${
                   search ? `&search=${search}` : ''
                 }`}
                 className='px-4 py-2 bg-primary text-white rounded-md hover:bg-buttonHover'
               >
                 Next
-              </a>
+              </Link>
             )}
           </div>
           <PageLimitSelect />
